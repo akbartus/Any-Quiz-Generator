@@ -19,4 +19,4 @@ The project was made possible thanks to:
 - Vanilla JavaScript
 
 ### **Demo**
-To see demo see this page:
+To see demo see this page: https://any-quiz-gen.glitch.me/
