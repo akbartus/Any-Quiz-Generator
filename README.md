@@ -12,6 +12,8 @@ This repository demonstrates how to automatically generate quiz questions from a
 2. The system will process the content and generate quiz questions with 4 possible answers for each.
 3. Test your knowledge instantly or export the quiz as JSON, CSV, or PDF.
 
+If there is an eed to genrate quiz questions continuously, just add new text and ask it to generate. It will add new questions.
+
 ### **Tech Stack**
 The project was made possible thanks to:
 - HuggingFace-hosted Mixtral API
