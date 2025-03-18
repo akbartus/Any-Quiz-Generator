@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qny Quiz Genrator</title>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik+Iso&display=swap');
+
+        .rubik-iso-regular {
+            font-family: "Rubik Iso", system-ui;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        h2 {
+            font-family: "Rubik Iso", system-ui;
+            font-size: 40px;
+            text-align: center;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        textarea,
+        input,
+        select {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #sendButton {
+            background: green;
+        }
+
+        #numberOfQuestions {
+            width: 60px
+        }
+
+        .quiz-container {
+            margin-top: 20px;
+        }
+
+        .quiz-question {
+            margin-bottom: 15px;
+        }
+
+        .quiz-question p {
+            font-weight: bold;
+        }
+
+        .quiz-options {
+            margin-top: 10px;
+        }
+
+        .quiz-options label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .quiz-options input {
+            margin-right: 10px;
+        }
+
+        .quiz-feedback {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        input[type="radio"] {
+            width: 10px;
+        }
+
+        #exportJSONButton,
+        #exportPdfButton,
+        #exportCsvButton {
+            width: 163px;
+            display: inline-block !important;
+        }
+
+        input[type="file"] {
+            outline: none;
+            padding: 4px;
+            margin: -4px;
+        }
+
+        input[type="file"]:focus-within::file-selector-button,
+        input[type="file"]:focus::file-selector-button {
+            outline: 2px solid #0964b0;
+            outline-offset: 2px;
+        }
+
+        input[type="file"]::before {
+            top: 16px;
+        }
+
+        input[type="file"]::after {
+            top: 14px;
+        }
+
+  
+
+        input[type="file"] {
+            position: relative;
+        }
+
+        input[type="file"]::file-selector-button {
+            width: 136px;
+            color: transparent;
+        }
+
+
+        input[type="file"]::before {
+            position: absolute;
+            pointer-events: none;
+            left: 40px;
+            color: #0964b0;
+            content: "Upload File";
+        }
+
+        input[type="file"]::after {
+            position: absolute;
+            pointer-events: none;
+            left: 16px;
+            height: 20px;
+            width: 20px;
+            content: "";
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230964B0'%3E%3Cpath d='M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z'/%3E%3C/svg%3E");
+        }
+
+        input[type="file"]::file-selector-button {
+            border-radius: 4px;
+            padding: 0 16px;
+            height: 40px;
+            cursor: pointer;
+            background-color: white;
+            border: 1px solid rgba(0, 0, 0, 0.16);
+            box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.05);
+            margin-right: 16px;
+            transition: background-color 200ms;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background-color: #f3f4f6;
+        }
+
+        input[type="file"]::file-selector-button:active {
+            background-color: #e5e7eb;
+        }
+
+        #pdfFile {
+            width: 300px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="container">
+        <h2>Any Quiz Generator</h2>
+        <label for="prompt">Enter Your Text: </label>
+        <textarea id="prompt" placeholder="Start here..."></textarea>
+
+        <!-- PDF Upload -->
+        <label for="pdfFile">Or Upload a PDF File: </label>
+        <input type="file" id="pdfFile" accept="application/pdf">
+
+        <!-- Number of Questions Selector -->
+        <label for="numberOfQuestions">Questions: </label>
+        <select id="numberOfQuestions">
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+
+        <button id="sendButton">Generate Quiz</button>
+        <button id="exportJSONButton" style="display: none;">Export as JSON</button>
+        <button id="exportPdfButton" style="display: none;">Export as PDF</button>
+        <button id="exportCsvButton" style="display: none;">Export as CSV</button>
+        <div class="quiz-container" id="quiz-container"></div>
+        <button id="submitAllButton" style="display: none; margin-top: 20px;">Submit</button>
+    </div>
+
+    <script>
+        let currentQuestionCount = 0;
+
+        document.getElementById('sendButton').addEventListener('click', async () => {
+            const prompt = document.getElementById("prompt").value;
+            const pdfFile = document.getElementById("pdfFile").files[0];
+            const numberOfQuestions = document.getElementById("numberOfQuestions").value; // Get selected number of questions
+
+            let textContent = prompt;
+
+            if (pdfFile) {
+                textContent = await extractTextFromPDF(pdfFile);
+            }
+
+            let preText = `You are a quiz creator. I will provide you with a text. Your task is to carefully read and analyze the text and create exactly ${numberOfQuestions} multiple-choice questions based strictly on its content. The questions must be clear, specific, and unambiguous, with exactly one correct answer per question. Use what, where, which, how, why questions. For each question: Write four distinct answer options labeled A, B, C, and D. Ensure only ONE option is fully correct based on the information in the text. Avoid questions where more than one option could be interpreted as correct or partially correct. Make sure distractors (incorrect options) are plausible but definitively incorrect according to the text. Indicate the correct answer clearly. Your output must be in valid JSON format with the following structure: 
+            [
+                {
+                    "question": "Your question text here?",
+                    "options": {
+                        "A": "Option A text",
+                        "B": "Option B text",
+                        "C": "Option C text",
+                        "D": "Option D text"
+                    },
+                    "correct_answer": "A"
+                }
+            ]
+            Use precise and concise language. Do not introduce external knowledge; base all content strictly on the provided text. Here is the text: `;
+
+            const data = {
+                prompt: preText + textContent,
+                history: [],
+                system_prompt: "You are a very powerful AI assistant.",
+                temperature: "0.0",
+                max_new_tokens: "2048",
+                top_p: "0.15",
+                repetition_penalty: "1.0"
+            };
+
+            const apiUrl = 'https://akbartus-mixtralapi.hf.space/generate/'; 
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(err => { throw new Error(err); });
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    console.log('Raw Response:', result);
+
+                    try {
+                        const rawResponse = result.response.trim();
+                        const cleanedResponse = rawResponse.replace(/<\/s>$/, '').replace(/^<s>/, '');
+                        const jsonResponse = JSON.parse(cleanedResponse);
+
+                        const quizContainer = document.getElementById('quiz-container');
+
+                        if (Array.isArray(jsonResponse)) {
+                            jsonResponse.forEach((question, index) => {
+                                const questionElement = document.createElement('div');
+                                questionElement.classList.add('quiz-question');
+
+                          
+                                questionElement.setAttribute('data-correct-answer', question.correct_answer);
+
+                             
+                                const questionNumber = currentQuestionCount + index + 1;
+                                const questionTitle = document.createElement('p');
+                                questionTitle.textContent = `${questionNumber}. ${question.question}`;
+                                questionElement.appendChild(questionTitle);
+
+                                const optionsContainer = document.createElement('div');
+                                optionsContainer.classList.add('quiz-options');
+
+                                Object.keys(question.options).forEach(option => {
+                                    const optionLabel = document.createElement('label');
+                                   
+                                    optionLabel.innerHTML = `<input type="radio" name="question${questionNumber}" value="${option}"> (${option}) ${question.options[option]}`;
+                                    optionsContainer.appendChild(optionLabel);
+                                });
+
+                                questionElement.appendChild(optionsContainer);
+                                quizContainer.appendChild(questionElement);
+                            });
+
+                         
+                            currentQuestionCount += jsonResponse.length;
+
+                       
+                            document.getElementById('exportJSONButton').style.display = 'block';
+                            document.getElementById('exportPdfButton').style.display = 'block';
+                            document.getElementById('exportCsvButton').style.display = 'block';
+                            document.getElementById('submitAllButton').style.display = 'block';
+
+                            
+                            quizContainer.appendChild(document.getElementById('submitAllButton'));
+
+                           
+                            document.getElementById('exportJSONButton').addEventListener('click', () => {
+                                const allQuestions = Array.from(document.querySelectorAll('.quiz-question')).map(questionElement => {
+                                    const questionText = questionElement.querySelector('p').textContent.replace(/^\d+\.\s/, '');
+                                    const options = {};
+                                    questionElement.querySelectorAll('.quiz-options label').forEach(label => {
+                                        const optionLetter = label.querySelector('input').value;
+                                        const optionText = label.textContent.replace(/^\(\w\)\s/, '').trim();
+                                        options[optionLetter] = optionText;
+                                    });
+                                    const correctAnswer = questionElement.getAttribute('data-correct-answer');
+                                    return {
+                                        question: questionText,
+                                        options: options,
+                                        correct_answer: correctAnswer
+                                    };
+                                });
+
+                                const quizData = JSON.stringify(allQuestions, null, 2);
+                                const blob = new Blob([quizData], { type: 'application/json' });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = 'quiz.json';
+                                a.click();
+                                URL.revokeObjectURL(url);
+                            });
+
+                     
+                            document.getElementById('exportPdfButton').addEventListener('click', () => {
+                                const { jsPDF } = window.jspdf;
+                                const doc = new jsPDF();
+
+                              
+                                doc.setFontSize(12); 
+                                doc.setFont('helvetica', 'bold'); 
+
+                                const margin = 10; 
+                                const pageHeight = doc.internal.pageSize.height; 
+                                let yOffset = margin; 
+
+                               
+                                doc.text("Any Quiz Generator", margin, yOffset);
+                                yOffset += 15; 
+
+                               
+                                doc.setFontSize(10); 
+                                doc.setFont('Rubik Iso', 'normal');
+
+                                const lineHeight = 7;
+                                const maxWidth = 180; 
+
+                                Array.from(document.querySelectorAll('.quiz-question')).forEach((questionElement, index) => {
+                                    const questionText = questionElement.querySelector('p').textContent;
+                                    const optionsText = Array.from(questionElement.querySelectorAll('.quiz-options label')).map(label => {
+                                        return label.textContent.trim();
+                                    });
+                                    const correctAnswer = questionElement.getAttribute('data-correct-answer');
+
+                                    const questionLines = doc.splitTextToSize(questionText, maxWidth);
+
+                                  
+                                    const totalLines = questionLines.length + optionsText.length + 1; 
+                                    const requiredHeight = totalLines * lineHeight;
+
+
+                                    if (yOffset + requiredHeight > pageHeight - margin) {
+                                      
+                                        doc.addPage();
+                                        yOffset = margin; 
+                                    }
+
+                                  
+                                    doc.text(questionLines, margin, yOffset);
+                                    yOffset += questionLines.length * lineHeight;
+
+                                  
+                                    optionsText.forEach(optionText => {
+                                        const optionLines = doc.splitTextToSize(optionText, maxWidth);
+                                        doc.text(optionLines, margin + 5, yOffset); 
+                                        yOffset += optionLines.length * lineHeight;
+                                    });
+
+                                   
+                                    doc.text(`Correct Answer: ${correctAnswer}`, margin + 5, yOffset);
+                                    yOffset += lineHeight + 5; 
+                                });
+
+                                doc.save('quiz.pdf');
+                            });
+
+                           
+                            document.getElementById('exportCsvButton').addEventListener('click', () => {
+                                const allQuestions = Array.from(document.querySelectorAll('.quiz-question')).map(questionElement => {
+                                    const questionText = questionElement.querySelector('p').textContent.replace(/^\d+\.\s/, '');
+                                    const options = {};
+                                    questionElement.querySelectorAll('.quiz-options label').forEach(label => {
+                                        const optionLetter = label.querySelector('input').value;
+                                        const optionText = label.textContent.replace(/^\(\w\)\s/, '').trim();
+                                        options[optionLetter] = optionText;
+                                    });
+                                    const correctAnswer = questionElement.getAttribute('data-correct-answer');
+                                    return [
+                                        `"${questionText}"`,
+                                        `"${options.A}"`,
+                                        `"${options.B}"`,
+                                        `"${options.C}"`,
+                                        `"${options.D}"`,
+                                        `"${correctAnswer}"`
+                                    ].join(",");
+                                });
+
+                                const csvContent = "data:text/csv;charset=utf-8," +
+                                    "Question,Option A,Option B,Option C,Option D,Correct Answer\n" +
+                                    allQuestions.join("\n");
+
+                                const encodedUri = encodeURI(csvContent);
+                                const link = document.createElement("a");
+                                link.setAttribute("href", encodedUri);
+                                link.setAttribute("download", "quiz.csv");
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                            });
+
+                          
+                            document.getElementById('submitAllButton').addEventListener('click', () => {
+                                const quizQuestions = document.querySelectorAll('.quiz-question');
+                                quizQuestions.forEach(questionElement => {
+                                    const questionNumber = questionElement.querySelector('p').textContent.match(/^\d+/)[0];
+                                    const selectedOption = document.querySelector(`input[name="question${questionNumber}"]:checked`);
+
+                                   
+                                    let feedbackElement = questionElement.querySelector('.quiz-feedback');
+
+                                   
+                                    if (!feedbackElement) {
+                                        feedbackElement = document.createElement('div');
+                                        feedbackElement.classList.add('quiz-feedback');
+                                        questionElement.appendChild(feedbackElement);
+                                    }
+
+                                    if (selectedOption) {
+                                        const selectedAnswer = selectedOption.value;
+                                        const correctAnswer = questionElement.getAttribute('data-correct-answer');
+                                        if (selectedAnswer === correctAnswer) {
+                                            feedbackElement.textContent = 'Correct!';
+                                            feedbackElement.style.color = 'green';
+                                        } else {
+                                            feedbackElement.textContent = 'Incorrect. The correct answer is ' + correctAnswer + '.';
+                                            feedbackElement.style.color = 'red';
+                                        }
+                                    } else {
+                                        feedbackElement.textContent = 'Please select an answer.';
+                                        feedbackElement.style.color = 'orange';
+                                    }
+                                });
+                            });
+                        } else {
+                            quizContainer.innerHTML = `<p>Unexpected response format: ${JSON.stringify(result, null, 2)}</p>`;
+                        }
+                    } catch (error) {
+                        console.error('Error parsing response:', error);
+                        document.getElementById('quiz-container').innerText = `Error: ${error.message}`;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('quiz-container').innerText = `Error: ${error.message}`;
+                });
+        });
+
+        async function extractTextFromPDF(pdfFile) {
+            const reader = new FileReader();
+            return new Promise((resolve, reject) => {
+                reader.onload = async function (event) {
+                    const typedarray = new Uint8Array(event.target.result);
+                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                    let textContent = '';
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const text = await page.getTextContent();
+                        textContent += text.items.map(item => item.str).join(' ');
+                    }
+                    resolve(textContent);
+                };
+                reader.onerror = function (error) {
+                    reject(error);
+                };
+                reader.readAsArrayBuffer(pdfFile);
+            });
+        }
+    </script>
+</body>
+
+</html>
