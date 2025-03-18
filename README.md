@@ -5,7 +5,7 @@
 </p>
 
 ### **Description / Rationale**
-This repository demonstrates how to automatically generate quiz questions from any input text. The goal is to simplify the creation of multiple-choice quizzes using AI, making it useful for educators, trainers, or self-learners.
+This repository demonstrates how to automatically generate quiz questions from any input text. The goal is to simplify the creation of multiple-choice quizzes using AI, making it useful for educators, trainers, or self-learners. It is completely free!
 
 ### **Instructions**
 1. Input any text or upload a document (e.g., PDF).
