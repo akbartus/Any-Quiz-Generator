@@ -14,6 +14,8 @@ This repository demonstrates how to automatically generate quiz questions from a
 
 If there is a need to generate quiz questions continuously, just add new text and ask it to generate. It will add new questions.
 
+<b>Note:</b> If for some reason it does not generate questions, visit this page: https://huggingface.co/spaces/Akbartus/MixtralAPI and click on "Restart this Space". If API is not used for prolonged period of time it is automatically going to a sleep mode. 
+
 ### **Tech Stack**
 The project was made possible thanks to:
 - HuggingFace-hosted Mixtral API
